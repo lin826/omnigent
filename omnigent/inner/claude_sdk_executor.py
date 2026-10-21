@@ -875,10 +875,9 @@ def _ensure_sdk() -> ModuleType:
         ) from exc
 
 
-# Prefix of the tools the in-process ``omnigent`` MCP server exposes. Only these
-# calls come back through ``_stable_tool_executor``; every other tool (Claude
-# Code's own ``Skill`` and ``ToolSearch``, or an MCP server from the user's
-# Claude settings) runs inside the CLI.
+# Tools of the in-process ``omnigent`` MCP server; only these come back through
+# ``_stable_tool_executor``. Every other tool (Claude Code's ``Skill`` and
+# ``ToolSearch``, or a user-configured MCP server) runs inside the CLI.
 _OMNIGENT_MCP_PREFIX = "mcp__omnigent__"
 
 
@@ -2443,7 +2442,7 @@ class ClaudeSDKExecutor(Executor):
             return None
         # Omnigent's own tools are already TOOL_CALL-gated server-side via
         # the dispatch bridge / ProxyMcpManager — don't evaluate them twice.
-        if tool_name.startswith("mcp__omnigent__"):
+        if tool_name.startswith(_OMNIGENT_MCP_PREFIX):
             return None
         _verdict = await _policy_eval(
             "PHASE_TOOL_CALL",
